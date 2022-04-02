@@ -1,4 +1,4 @@
-package com.laptrinhjavaweb.controller;
+package com.laptrinhjavaweb.api;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -42,15 +42,13 @@ public class BuildingAPI {
 	
 	
 	@GetMapping("/api/building")
-	public List<BuildingSearchResponse> getBuildingList(@RequestParam Map<Object,Object> requestParam,
+	public List<BuildingSearchResponse> getBuildingList(@RequestParam Map<String,String> requestParam,
 			 											@RequestParam(value = "listType", required = false) List<String> listType) {
 		
 		
 		
-		 	requestParam.put("buildingTypes", listType);
-			List<BuildingSearchResponse> results = buildingService.findAll(requestParam);
+			List<BuildingSearchResponse> results = buildingService.findAll(requestParam, listType);
 			
-//		return results;
 			return results;
 	}
 	

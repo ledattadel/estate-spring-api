@@ -10,12 +10,13 @@ import com.laptrinhjavaweb.repository.entity.BuildingEntity;
 
 // data access layer
 public interface BuildingRepository {
-	List<BuildingEntity> findAll(Map<Object,Object> requestParam);
-	String buildQueryForSearchBuilding(BuildingSearchRequest buildingSearchRequest);
-	String buildJoinSQLForSearchBuilding(BuildingSearchRequest buildingSearchRequest);
-	String buildWhereSQLForSearchBuilding(BuildingSearchRequest buildingSearchRequest);
+	
+	List<BuildingEntity> findAll(Map<String,String> requestParam,List<String> listType);
+	String buildQueryForSearchBuilding(Map<String,String> requestParam, List<String> listType);
+	String buildJoinSQLForSearchBuilding(Map<String,String> requestParam, List<String> listType);
+	String buildWhereSQLForSearchBuilding(Map<String,String> requestParam, List<String> listType);
 	String buildConditionForBuildingType(List<String> buildingType);
 	String checkExistenceOfCondition(String prefix, String suffix, Object parameter);
-	String buildBetweenStatementForBuildingSearch(String whereSQLClause, Integer from, Integer to);
+	String buildBetweenStatementForBuildingSearch(String whereSQLClause, String from, String to);
 	String getDistrictName(String districtId);
 }

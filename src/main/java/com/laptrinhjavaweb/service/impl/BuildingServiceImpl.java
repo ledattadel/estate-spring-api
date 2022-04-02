@@ -45,9 +45,9 @@ public class BuildingServiceImpl implements BuildingService{
 //	}
 
 	@Override
-	public List<BuildingSearchResponse> findAll(Map<Object,Object> requestParam) {
+	public List<BuildingSearchResponse> findAll(Map<String,String> requestParam,List<String> listType) {
 		// TODO Auto-generated method stub
-		List<BuildingEntity> entities = buildingRepository.findAll(requestParam);
+		List<BuildingEntity> entities = buildingRepository.findAll(requestParam,listType);
 		List<BuildingSearchResponse> result = new ArrayList<>();
 	        
 		for (BuildingEntity entity : entities) {

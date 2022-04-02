@@ -35,22 +35,16 @@ public class BuildingRepositoryImpl implements BuildingRepository{
 	@Autowired
 	private BuildingConverter buildingConverter;
 	
-//	@Autowired
-//	private BuildingSearchResponse buildingSearchResponse;
-//	
-	@Autowired
-	private BuildingSearchRequest buildingSearchRequest;
-	
+
 	
     @Override
-    public String buildQueryForSearchBuilding(BuildingSearchRequest buildingSearchRequest) {
-//        , BD.managername, BD.managerphone chua co trong db
+    public String buildQueryForSearchBuilding(Map<String,String> requestParam, List<String> listType) {
     	try {
     		
         	 return new StringBuilder("SELECT BD.id, BD.name, BD.street, BD.ward, BD.districtid, BD.floorarea, BD.rentprice, BD.rentpricedescription, BD.servicefee,BD.brokeragefee, BD.createddate, BD.managername, BD.managerphone ")
 	                    .append(" FROM building BD ")
-	                    .append(this.buildJoinSQLForSearchBuilding(buildingSearchRequest))
-	                    .append(this.buildWhereSQLForSearchBuilding(buildingSearchRequest))
+	                    .append(this.buildJoinSQLForSearchBuilding(requestParam,listType))
+	                    .append(this.buildWhereSQLForSearchBuilding(requestParam,listType))
 	                    .append(" GROUP BY BD.id ").toString();
                     
         } catch (Exception e) {
@@ -59,57 +53,47 @@ public class BuildingRepositoryImpl implements BuildingRepository{
         }
     }
 	
+   
     @Override
-    public String buildJoinSQLForSearchBuilding(BuildingSearchRequest buildingSearchRequest) {
-    	String sql = "";
+    public String buildJoinSQLForSearchBuilding(Map<String,String> requestParam, List<String> listType) {
     	
-    	String assignmentbuilding = " JOIN assignmentbuilding ASB on  ASB.buildingid = BD.id ";
-        String rentarea = " JOIN rentarea RE ON RE.buildingid = BD.id ";
-        String buildingrenttype = " JOIN buildingrenttype BRT ON BRT.buildingid = BD.id JOIN renttype RT ON RT.id = BRT.renttypeid ";
-    	String district = " JOIN district DT on DT.id = BD.districtid ";
-        
-    	if(buildingSearchRequest.getBuildingTypes()!=null) {
-    		sql+= buildingrenttype;
+    	StringBuilder buildJoinSQL = new StringBuilder(" JOIN district DT on DT.id = BD.districtid ");
+    	if(listType!=null) {
+    		buildJoinSQL.append(" JOIN buildingrenttype BRT ON BRT.buildingid = BD.id JOIN renttype RT ON RT.id = BRT.renttypeid ");  
     	}
     	
-    	if(buildingSearchRequest.getStaffId()!= null) {
-    		sql += assignmentbuilding;
+    	if(requestParam.get("staffId") != null) {
+    		buildJoinSQL.append(" JOIN assignmentbuilding ASB on  ASB.buildingid = BD.id ");
     	}
-    	if(buildingSearchRequest.getRentEreaFrom() != null || buildingSearchRequest.getRentEreaTo() != null) {
-    		sql += rentarea;
+    	if(requestParam.get("rentEreaFrom") != null || requestParam.get("rentEreaTo") != null) {
+    		buildJoinSQL.append(" JOIN rentarea RE ON RE.buildingid = BD.id ");
     	}
-    	if(buildingSearchRequest.getDistrictCode()!= null) {
-    		sql += district;
-    	}
-    	
-    	
-       
-
-        return sql;
+    
+        return buildJoinSQL.toString();
     }
     
     
     
     
     @Override
-    public String buildWhereSQLForSearchBuilding(BuildingSearchRequest buildingSearchRequest) {
+    public String buildWhereSQLForSearchBuilding(Map<String,String> requestParam, List<String> listType) {
         StringBuilder whereSQLClause = new StringBuilder(" WHERE 1=1 ");
-
+        
         whereSQLClause
-                .append(this.buildConditionForBuildingType(buildingSearchRequest.getBuildingTypes()))
-                .append(this.checkExistenceOfCondition(" AND BD.name LIKE '%", "%' ", buildingSearchRequest.getName()))
-                .append(this.checkExistenceOfCondition(" AND BD.street LIKE '%", "%' ", buildingSearchRequest.getStreet()))
-                .append(this.checkExistenceOfCondition(" AND BD.ward LIKE '%", "%' ", buildingSearchRequest.getWard()))
-                .append(this.checkExistenceOfCondition(" AND DT.code = '", "' ",  buildingSearchRequest.getDistrictCode()))
-                .append(this.checkExistenceOfCondition(" AND BD.floorarea = ", " ", buildingSearchRequest.getFloorArea()))
-                .append(this.checkExistenceOfCondition(" AND BD.numberOfBasement = '", "' ", buildingSearchRequest.getNumberOfBasement()))
-                .append(this.checkExistenceOfCondition(" AND BD.direction  LIKE '%", "%' ", buildingSearchRequest.getDirection()))
-                .append(this.checkExistenceOfCondition(" AND BD.Level LIKE '%", "%' ", buildingSearchRequest.getLevel()))
-                .append(this.checkExistenceOfCondition(" AND BD.managername LIKE '%", "%' ", buildingSearchRequest.getManagerName()))
-                .append(this.checkExistenceOfCondition(" AND BD.managerphone LIKE '%", "%' ", buildingSearchRequest.getManagerPhone()))
-                .append(this.checkExistenceOfCondition(" AND ASB.staffid = '", "' ", buildingSearchRequest.getStaffId()))
-                .append(this.buildBetweenStatementForBuildingSearch("BD.rentprice", buildingSearchRequest.getRentPriceFrom(), buildingSearchRequest.getRentPriceTo()))
-                .append(this.buildBetweenStatementForBuildingSearch("RE.value", buildingSearchRequest.getRentEreaFrom(), buildingSearchRequest.getRentEreaTo()));
+                .append(this.buildConditionForBuildingType(listType))
+                .append(this.checkExistenceOfCondition(" AND BD.name LIKE '%", "%' ", requestParam.get("name")))
+                .append(this.checkExistenceOfCondition(" AND BD.street LIKE '%", "%' ", requestParam.get("street")))
+                .append(this.checkExistenceOfCondition(" AND BD.ward LIKE '%", "%' ", requestParam.get("ward")))
+                .append(this.checkExistenceOfCondition(" AND DT.code = '", "' ",  requestParam.get("districtCode")))
+                .append(this.checkExistenceOfCondition(" AND BD.floorarea = ", " ", requestParam.get("floorArea")))
+                .append(this.checkExistenceOfCondition(" AND BD.numberOfBasement = '", "' ", requestParam.get("numberOfBasement")))
+                .append(this.checkExistenceOfCondition(" AND BD.direction  LIKE '%", "%' ", requestParam.get("direction")))
+                .append(this.checkExistenceOfCondition(" AND BD.Level LIKE '%", "%' ", requestParam.get("level")))
+                .append(this.checkExistenceOfCondition(" AND BD.managername LIKE '%", "%' ", requestParam.get("managerName")))
+                .append(this.checkExistenceOfCondition(" AND BD.managerphone LIKE '%", "%' ", requestParam.get("managerPhone")))
+                .append(this.checkExistenceOfCondition(" AND ASB.staffid = '", "' ", requestParam.get("staffId")))
+                .append(this.buildBetweenStatementForBuildingSearch("BD.rentprice", requestParam.get("rentPriceFrom"), requestParam.get("rentPriceTo")))
+                .append(this.buildBetweenStatementForBuildingSearch("RE.value", requestParam.get("rentEreaFrom"), requestParam.get("rentEreaTo")));
                 
 
         return whereSQLClause.toString();
@@ -136,7 +120,7 @@ public class BuildingRepositoryImpl implements BuildingRepository{
         return conditionForBuildingType.toString();
     }
     @Override
-    public String buildBetweenStatementForBuildingSearch(String whereSQLClause, Integer from, Integer to) {
+    public String buildBetweenStatementForBuildingSearch(String whereSQLClause, String from, String to) {
     	
     	if (!StringUtils.isNull(from) || !StringUtils.isNull(to)) {
     		
@@ -183,17 +167,16 @@ public class BuildingRepositoryImpl implements BuildingRepository{
     }
     
 	@Override
-	public List<BuildingEntity> findAll(Map<Object,Object> requestParam) {
+	public List<BuildingEntity> findAll(Map<String,String> requestParam, List<String> listType) {
 		
-		buildingSearchRequest = buildingConverter.convertMapToBuildingSearchRequest(requestParam);
-		String QUERY = buildQueryForSearchBuilding(buildingSearchRequest);
+		String query = buildQueryForSearchBuilding(requestParam,listType);
 		
 		
 		
 		List<BuildingEntity> listBuildingEntity = new ArrayList<>();
 		try(Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
 		         Statement stmt = conn.createStatement();
-		         ResultSet rs = stmt.executeQuery(QUERY);
+		         ResultSet rs = stmt.executeQuery(query);
 		      ) {		      
 		         while(rs.next()){
 		        	 
