@@ -47,7 +47,7 @@ public class BuildingAPI {
 		
 		
 		
-			List<BuildingSearchResponse> results = buildingService.findAll(requestParam, listType);
+			List<BuildingSearchResponse> results = buildingService.findByCondition(requestParam, listType);
 			
 			return results;
 	}

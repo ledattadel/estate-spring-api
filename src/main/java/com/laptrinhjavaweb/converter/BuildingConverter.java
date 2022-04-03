@@ -13,8 +13,9 @@ import org.springframework.stereotype.Component;
 import com.laptrinhjavaweb.dto.BuildingDTO;
 import com.laptrinhjavaweb.dto.request.BuildingSearchRequest;
 import com.laptrinhjavaweb.dto.response.BuildingSearchResponse;
-import com.laptrinhjavaweb.repository.BuildingRepository;
+import com.laptrinhjavaweb.repository.IBuildingRepository;
 import com.laptrinhjavaweb.repository.entity.BuildingEntity;
+import com.laptrinhjavaweb.repository.entity.DistrictEntity;
 
 @Component
 public class BuildingConverter {
@@ -23,7 +24,10 @@ public class BuildingConverter {
 	private ModelMapper modelMapper;
 	
 	@Autowired
-	private BuildingRepository buildingRepository;
+	private IBuildingRepository buildingRepository;
+	
+//	@Autowired
+//	private D
 	
 	@Autowired
 	private BuildingSearchResponse buildingSearchResponse;
@@ -35,19 +39,19 @@ public class BuildingConverter {
 		return dto;
 	}
 	
-	public BuildingSearchResponse convertToBuildingSearchResponseFromEntity(BuildingEntity entity) {
+	public BuildingSearchResponse convertToBuildingSearchResponseFromEntity(BuildingEntity buildingEntity, DistrictEntity districtEntity) {
 		modelMapper.getConfiguration().setAmbiguityIgnored(true);
 		
        
         try {
-        	BuildingSearchResponse dto = modelMapper.map(entity, BuildingSearchResponse.class);
+        	BuildingSearchResponse dto = modelMapper.map(buildingEntity, BuildingSearchResponse.class);
 //        	modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 //
 //        	modelMapper.getConfiguration().setAmbiguityIgnored(true);
-    		dto.setAddress(entity.getStreet() +","+ entity.getWard()+"," +buildingRepository.getDistrictName(entity.getDistrictId()));
-    		dto.setRentprice(entity.getRentPrice());
-    		if(entity.getCreatedDate() != null) {
-    			Date date = entity.getCreatedDate();  
+    		dto.setAddress(buildingEntity.getStreet() +","+ buildingEntity.getWard()+"," + districtEntity.getName());
+    		dto.setRentprice(buildingEntity.getRentPrice());
+    		if(buildingEntity.getCreatedDate() != null) {
+    			Date date = buildingEntity.getCreatedDate();  
                 DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");  
               
         		dto.setDate(dateFormat.format(date));

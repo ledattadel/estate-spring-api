@@ -12,6 +12,6 @@ import com.laptrinhjavaweb.service.filter.BuildingFilter;
 
 //business logic layer
 public interface BuildingService {
-	List<BuildingSearchResponse> findAll(Map<String,String> requestParam, List<String> listType);
+	List<BuildingSearchResponse> findByCondition(Map<String,String> requestParam, List<String> listType);
 	
 }
