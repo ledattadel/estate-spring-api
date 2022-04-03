@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -107,21 +108,20 @@ public class BuildingRepositoryImpl extends BaseJDBCImpl implements IBuildingRep
 	}
 
 	private String buildConditionForBuildingType(List<String> buildingType) {
-		String conditionForBuildingType = "";
+		StringBuilder conditionForBuildingType = new StringBuilder("");
 		if (buildingType != null) {
-			conditionForBuildingType +=" AND";
-			if (buildingType.size() == 1) {
-				conditionForBuildingType += " RT.code LIKE '" + buildingType.get(0) + "'";
-			} else if (buildingType.size() > 1) {
-				for (int i = 0; i < buildingType.size(); i++) {
-					conditionForBuildingType = String.join(" OR "," RT.code LIKE '" + buildingType.get(i) + "'" );
-					
-				}
+			if(buildingType.size() == 1) {
+				conditionForBuildingType.append(checkExistenceOfCondition(" AND RT.code = \"", "\" ", buildingType.get(0)));
+			}
+			else if (buildingType.size() != 1) {
+				conditionForBuildingType.append(" AND ");
+				conditionForBuildingType.append(buildingType.stream().map(s -> " RT.code = '" + s + "'") .collect(Collectors.joining(" OR ")));
+				
 			}
 
 		}
 
-		return conditionForBuildingType;
+		return conditionForBuildingType.toString();
 	}
 
 	private String buildBetweenStatementForBuildingSearch(String whereSQLClause, String from, String to) {
