@@ -107,17 +107,17 @@ public class BuildingRepositoryImpl extends BaseJDBCImpl implements IBuildingRep
 		
 		
 		whereSQLClause.append(this.buildConditionBuildingType(listType))
-				.append(this.checkExistenceOfCondition("BD.name",SystemConstant.LIKE_OPERATOR,name))
-				.append(this.checkExistenceOfCondition("BD.street",SystemConstant.LIKE_OPERATOR, street))
-				.append(this.checkExistenceOfCondition("BD.ward",SystemConstant.LIKE_OPERATOR, ward))
-				.append(this.checkExistenceOfCondition("DT.code",SystemConstant.EQUAL_OPERATOR, districtCode))
-				.append(this.checkExistenceOfCondition("BD.floorarea",SystemConstant.EQUAL_OPERATOR, floorArea))
-				.append(this.checkExistenceOfCondition("BD.numberOfBasement",SystemConstant.EQUAL_OPERATOR,numberOfBasement))
-				.append(this.checkExistenceOfCondition("BD.direction",SystemConstant.LIKE_OPERATOR,direction))
-				.append(this.checkExistenceOfCondition("BD.Level",SystemConstant.LIKE_OPERATOR, level))
-				.append(this.checkExistenceOfCondition("BD.managername",SystemConstant.LIKE_OPERATOR,managerName))
-				.append(this.checkExistenceOfCondition("BD.managerphone",SystemConstant.LIKE_OPERATOR,managerPhone))
-				.append(this.checkExistenceOfCondition("ASB.staffid",SystemConstant.EQUAL_OPERATOR, staffiD))
+				.append(this.buildLikeCondition("BD.name",name))
+				.append(this.buildLikeCondition("BD.street", street))
+				.append(this.buildLikeCondition("BD.ward", ward))
+				.append(this.buildEqualCondition("DT.code", districtCode))
+				.append(this.buildEqualCondition("BD.floorarea", floorArea))
+				.append(this.buildEqualCondition("BD.numberOfBasement",numberOfBasement))
+				.append(this.buildLikeCondition("BD.direction",direction))
+				.append(this.buildLikeCondition("BD.Level", level))
+				.append(this.buildLikeCondition("BD.managername",managerName))
+				.append(this.buildLikeCondition("BD.managerphone",managerPhone))
+				.append(this.buildEqualCondition("ASB.staffid",staffiD))
 				.append(this.buildBetweenStatementForBuildingSearch("BD.rentprice", rentPriceFrom,rentPriceTo))
 				.append(this.buildBetweenStatementForBuildingSearch("RE.value", rentAreaFrom,rentAreaTo));
 
@@ -154,13 +154,20 @@ public class BuildingRepositoryImpl extends BaseJDBCImpl implements IBuildingRep
 		return "";
 	}
 
-	private String checkExistenceOfCondition(String paramCondition,String typeOfCondition, String parameter) {
-		if (!StringUtils.isNull(parameter) && typeOfCondition.equals("=")) {
+	private String buildEqualCondition(String paramCondition,String parameter) {
+		if (!StringUtils.isNull(parameter)) {
 			return (" AND " + paramCondition  + " = '" + parameter +"' ");
-		}else if(!StringUtils.isNull(parameter) && typeOfCondition.equals("LIKE")){
+		}
+		return "";
+	}
+	private String buildLikeCondition(String paramCondition, String parameter) {
+		if (!StringUtils.isNull(parameter)) {
 			return (" AND " + paramCondition  + " LIKE '%" + parameter +"%' ");
 		}
 		return "";
 	}
+	
+	
+	
 
 }
